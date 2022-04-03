@@ -23,33 +23,33 @@ import { FormsModule } from 'src/app/modules';
 ```
 export class your/page {
 
-	public config = {
-		title: 'Authorize',
-		class: 'webart.work',
-		components: [{
-			type: 'email',
-			label: 'E-mail',
-			placeholder: 'fill your email',
-			input: 'email'
-		}, {
-			type: 'password',
-			label: 'Password',
-			placeholder: 'fill your password',
-			input: 'password'
-		}, {
-			type: 'button',
-			label: 'Sign',
-			output: 'submit'
-		}]
-	}
+ public config = {
+   title: 'Authorize',
+   class: 'webart.work',
+   components: [{
+     type: 'email',
+     label: 'E-mail',
+     placeholder: 'fill your email',
+     input: 'email'
+   }, {
+     type: 'password',
+     label: 'Password',
+     placeholder: 'fill your password',
+     input: 'password'
+   }, {
+     type: 'button',
+     label: 'Sign',
+     output: 'submit'
+   }]
+ }
 
-	public doc: any = {};
+ public doc: any = {};
 
-	sign(qwer) {
-		console.log(qwer)
-	}
+ sign(qwer) {
+   console.log(qwer)
+ }
 
-	constructor() { }
+ constructor() { }
 }
 
 ```
