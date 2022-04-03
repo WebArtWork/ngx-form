@@ -8,7 +8,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class FormsComponent {
 	@Input() config: any = {};
 	@Input() doc: any = {};
-	@Output() sign: EventEmitter<any> = new EventEmitter();
+	@Output("submit") sign: EventEmitter<any> = new EventEmitter();
 	constructor(
 	) { }
 }
