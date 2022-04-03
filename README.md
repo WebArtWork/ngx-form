@@ -14,7 +14,7 @@ import { FormsModule } from 'src/app/modules';
 @NgModule({
   imports: [
     FormsModule
-	],
+  ],
 })
 ```
 
