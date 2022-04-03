@@ -1,0 +1,21 @@
+<h1>{{config.title}}</h1>
+{{doc|json}}
+<div *ngFor="let component of config.components">
+	{{component|json}}
+
+	<label *ngIf="component.input === 'email'">
+		<span>{{component.label}}</span>
+		<input [type]="component.type" [placeholder]="component.placeholder" [(ngModel)]="doc[component.input]">
+	</label>
+
+	<label *ngIf="component.input === 'password'">
+		<span>{{component.label}}</span>
+		<input [type]="component.type" [placeholder]="component.placeholder" [(ngModel)]="doc[component.input]">
+	</label>
+
+	<label *ngIf="component.output === 'submit'">
+		<span>{{component.label}}</span>
+		<button [type]="component.type" (click)="sign.emit(doc)">Sign</button>
+	</label>
+
+</div>
