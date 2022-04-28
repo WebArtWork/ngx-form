@@ -1,19 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CoreModule } from '@core';
-import { FormsComponent } from './forms.component';
+import { FormComponent } from './form/form.component';
+import { ModalComponent } from './modal/modal.component';
 
 @NgModule({
 	imports: [
 		CoreModule,
 	],
 	declarations: [
-		FormsComponent
+		ModalComponent,
+		FormComponent,
 	],
 	exports: [
-		FormsComponent
+		ModalComponent,
+		FormComponent,
 	],
 	providers: []
-
 })
 
 export class FormsModule { }
