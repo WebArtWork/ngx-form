@@ -6,56 +6,17 @@
 waw add ngx-forms
 ```
 
-# Step 2: Import FormsModule
+# Step 2: Import FormsService
 ### In page.module.ts you must imported:
 ```
-import { FormsModule } from 'src/app/modules';
+import { FormService } from 'src/app/modules/forms/form.service';
 
-@NgModule({
-  imports: [
-    FormsModule
-  ],
-})
-```
-
-# Step 3: Component.ts
-### In page.component.ts you must write this code:
-```
-export class your/page {
-
- public config = {
-   title: 'Authorize',
-   class: 'webart.work',
-   components: [{
-     type: 'email',
-     label: 'E-mail',
-     placeholder: 'fill your email',
-     input: 'email'
-   }, {
-     type: 'password',
-     label: 'Password',
-     placeholder: 'fill your password',
-     input: 'password'
-   }, {
-     type: 'button',
-     label: 'Sign',
-     output: 'submit'
-   }]
- }
-
- public doc: any = {};
-
- sign(qwer) {
-   console.log(qwer)
- }
-
- constructor() { }
+	constructor(public fm:FormService) {}
 }
-
 ```
 
-# Step 4: Write Tag(wform)
+# Step 4: Use button, and  modal function
 ### In page.component.html you write this code outside of others:
 ```
-<wform [config]="config" [doc]="doc" (submit)="sign($event)"></wform>
+<button (click)='fm.modal()'>+</button>
 ```
