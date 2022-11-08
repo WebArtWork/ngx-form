@@ -1,43 +1,78 @@
+import { Directive, TemplateRef, Input } from '@angular/core';
 import { Injectable } from '@angular/core';
-import { ModalComponent } from 'wacom';
-import { FormComponent } from 'src/app/modules/forms/form/form.component';
-import { ModalService} from 'wacom';
+import { ModalService } from 'wacom';
+import { ButtonTypes } from '../button/button.interface';
+import { InputTypes } from '../input/input.interface';
+import { ModalComponent } from './modal/modal.component';
+
+export enum FormModules {
+	INPUT = 'winput',
+	BUTTON = 'wbutton',
+	TEXTAREA = 'wtextarea',
+	SELECT = 'wselect'
+}
+
+export enum FormOutputs {
+	SUBMIT = 'submit',
+	CHANGE = 'change'
+}
+
+export interface FormComponent {
+	id?: number;
+	input?: string; // required if you need to keep info on this component
+	custom?: string;
+	set?: string | number | Date | object;
+	value?: string | number | Date | object;
+	module?: FormModules;
+	type?: InputTypes | ButtonTypes;
+	label?: string;
+	hidden?: boolean;
+	placeholder?: string;
+	disabled?: () => boolean;
+	focused?: boolean;
+	required?: boolean;
+	class?: string;
+	boxclass?: string;
+	items?: object[] | string[];
+	name?: string;
+	click?: ()=>void;
+	components?: FormComponent[];
+}
+
+export interface FormConfig {
+	title?: string;
+	class?: string;
+	output?: FormOutputs;
+	components: FormComponent[];
+}
+
 @Injectable({
 	providedIn: 'root'
 })
 export class FormService {
-	public forms: any =[];
-	public doc: any = {};
-	public config = {
-		title : 'title',
-		class : 'webart.work',
-		components: [{
-			type: 'email',
-			label: 'E-mail',
-			placeholder: 'fill your email',
-			input: 'email'
-		},
-		{
-			type: 'password',
-			label: 'Password',
-			placeholder: 'fill your password',
-			input: 'password'
-		},{
-			type: 'button',
-			label: 'Modal',
-			output: 'submit'
-		}]
-	}
-	modal(config = this.config, doc = this.doc, submit = d=>{}, change =  d=>{}){
-		this.ms.show({
-			component:FormComponent,
-			config, 
-			doc,
+	constructor(private _modal: ModalService) {}
+
+	modal(
+		config: FormConfig,
+		submit = (form: any): void => {},
+		change = (): void => {}
+	): void {
+		this._modal.show({
+			component: ModalComponent,
+			class: 'forms_modal',
+			config,
 			submit,
-			change,
-			class: 'forms_modal'
-		})
-		console.log(config, doc)
+			change
+		});
 	}
-	constructor(public ms:ModalService) { }
+}
+
+
+@Directive({
+	selector: 'ng-template[formcomponent]'
+})
+export class FormComponentDirective {
+	@Input() formcomponent: any;
+
+	constructor(public template: TemplateRef<any>) { }
 }

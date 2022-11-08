@@ -1,16 +1,30 @@
-<h1>{{config.title}}</h1>
-<h3>{{config.class}}</h3>
-{{doc|json}}
-<div *ngFor="let component of config.components">
-	<label *ngIf="component.input === 'email'">
-		<span>{{component.label}}</span>
-		<input [type]="component.type" [placeholder]="component.placeholder" [(ngModel)]="doc[component.input]">
-	</label>
-		<label *ngIf="component.input === 'password'">
-		<span>{{component.label}}</span>
-		<input [type]="component.type" [placeholder]="component.placeholder" [(ngModel)]="doc[component.input]">
-	</label>
-	<label *ngIf="component.output === 'submit'">
-		<button [type]="component.type" (click)="modal.emit(doc)">Modal</button>
-	</label>
+<div class="w-forms">
+	<h1 class="w-forms__title" *ngIf="config.title">{{config.title}}</h1>
+	<form [formGroup]="form" (ngSubmit)="onSubmit()">
+		<ng-container *ngFor="let component of config.components; index as i">
+			<ng-container *ngIf="component.custom && !component.hidden">
+				<ng-container
+					*ngTemplateOutlet="
+						customComponents[component.custom]; context: {
+							$implicit: {
+								component: component,
+								submit: onSubmit,
+								change: change.emit,
+								form: form
+							}
+						}
+					"
+				></ng-container>
+			</ng-container>
+			<form-component
+				*ngIf="!component.custom && !component.hidden"
+				[ngClass]="component.boxclass || ''"
+				(change)="change.emit()"
+				[component]="component"
+				(submit)="onSubmit()"
+				class="form-box"
+				[form]="form"
+			></form-component>
+		</ng-container>
+	</form>
 </div>
