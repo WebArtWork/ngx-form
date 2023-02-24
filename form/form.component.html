@@ -2,14 +2,24 @@
 	<h1 class="w-forms__title" *ngIf="config.title">{{config.title}}</h1>
 	<form [formGroup]="form" (ngSubmit)="onSubmit()">
 		<ng-container *ngFor="let component of config.components; index as i">
-			<ng-container *ngIf="component.custom && !component.hidden">
+			<ng-container
+				*ngIf="
+					(
+						component.customRef ||
+						component.custom
+					) &&
+					!component.hidden
+				"
+			>
 				<ng-container
 					*ngTemplateOutlet="
-						customComponents[component.custom]; context: {
+						component.customRef ||
+						(component.custom && customComponents[component.custom]);
+						context: {
 							$implicit: {
 								component: component,
 								submit: onSubmit,
-								change: change.emit,
+								change: onChange,
 								form: form
 							}
 						}
@@ -17,11 +27,15 @@
 				></ng-container>
 			</ng-container>
 			<form-component
-				*ngIf="!component.custom && !component.hidden"
+				*ngIf="
+					!component.customRef &&
+					!component.custom &&
+					!component.hidden
+				"
 				[ngClass]="component.boxclass || ''"
-				(change)="change.emit()"
+				(wChange)="onChange()"
 				[component]="component"
-				(submit)="onSubmit()"
+				(wSubmit)="onSubmit()"
 				class="form-box"
 				[form]="form"
 			></form-component>
