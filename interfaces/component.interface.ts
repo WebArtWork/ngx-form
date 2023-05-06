@@ -2,7 +2,7 @@ import { TemplateRef } from "@angular/core";
 
 export interface TemplateFieldInterface {
 	name: string;
-	value: string;
+	value: unknown;
 }
 
 export interface TemplateComponentInterface {

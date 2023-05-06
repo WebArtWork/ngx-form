@@ -4,7 +4,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { FormService } from '../../form.service';
 
 interface Data {
-	field: Record<string, string>;
+	field: Record<string, unknown>;
 	value: unknown;
 }
 
@@ -48,7 +48,11 @@ export class FormComponentComponent implements OnInit {
 		}
 
 		if (this.component.key && this.submition !== undefined) {
-			data.value = this.submition[this.component.key];
+			if (this.component.root && this.submition['data']) {
+				data.value = (this.submition['data'] as Record<string, unknown>)[this.component.key];
+			} else {
+				data.value = this.submition[this.component.key];
+			}
 		}
 
 		if (this.component.key && !this.control) {

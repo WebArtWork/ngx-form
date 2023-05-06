@@ -3,15 +3,16 @@ import { Injectable } from '@angular/core';
 import { AlertService, ModalService, MongoService, StoreService } from 'wacom';
 import {
 	FormComponentInterface,
-	TemplateComponentInterface
+	TemplateComponentInterface,
+	TemplateFieldInterface
 } from './interfaces/component.interface';
 import { FormInterface } from './interfaces/form.interface';
 import { ModalFormComponent } from './modals/modal-form/modal-form.component';
 
 export interface FormModalButton {
-	click: (submition: unknown, close: ()=>void) => void,
-	label: string,
-	class?: string
+	click: (submition: unknown, close: () => void) => void;
+	label: string;
+	class?: string;
 }
 
 @Injectable({
@@ -37,6 +38,57 @@ export class FormService {
 		this._store.getJson('formIds', (formIds: string[]) => {
 			this.formIds = formIds || [];
 		});
+	}
+
+	private _translate: (
+		slug: string,
+		reset?: (translate: string) => void
+	) => string;
+
+	setTranslate(
+		_translate: (
+			slug: string,
+			reset?: (translate: string) => void
+		) => string
+	) {
+		this._translate = _translate;
+	}
+
+	translateForm(form: FormInterface) {
+		if (!!this._translate) {
+			if (form.title) {
+				form.title = this._translate(
+					`Form_${form.formId}.${form.title}`,
+					(title: string) => {
+						form.title = title;
+					}
+				);
+
+				for (const component of form.components) {
+					for (const field of component.fields) {
+						this.translateFormComponent(form, field);
+					}
+				}
+			}
+		}
+	}
+
+	translateFormComponent(form: FormInterface, field: TemplateFieldInterface) {
+		field.name = this._translate(
+			`Form_${form.formId}.${field.name}`,
+			(name: string) => {
+				field.name = name;
+			}
+		);
+		// TODO: add management for deeper translate
+		if (typeof field.value === 'string') {
+			field.value = this._translate(
+				`Form_${form.formId}.${field.value}`,
+				(value: string) => {
+					field.value = value;
+				}
+			);
+		}
 	}
 
 	components: TemplateComponentInterface[] = [];
@@ -124,15 +176,17 @@ export class FormService {
 		} else {
 			setTimeout(() => {
 				this.addRef(component);
-			}, 500);
+			}, 100);
 		}
 	}
 
 	forms: FormInterface[] = [];
 
-	addForm(form: FormInterface) {
+	addDevForm(form: FormInterface) {
 		if (this.forms.map((c) => c.formId).indexOf(form.formId) === -1) {
 			for (const component of form.components) {
+				component.root = true;
+
 				this.addRef(component);
 			}
 
@@ -196,13 +250,29 @@ export class FormService {
 			this._store.setJson('formIds', this.formIds);
 		}
 
+		const devForm = this.forms.find((f) => f.formId === formId);
+
 		const customForm = this.customForms.find(
 			(f) => f.formId === formId && f.active
 		);
 
-		const form = this.forms.find((f) => f.formId === formId);
+		const defaultForm = this.getDefaultForm(formId);
 
-		return customForm || form || this.getDefaultForm(formId);
+		const form = devForm
+			? { ...devForm }
+			: customForm
+			? { ...customForm }
+			: defaultForm;
+
+		if (devForm && customForm) {
+			for (const component of customForm.components) {
+				devForm.components.push(component);
+			}
+		}
+
+		this.translateForm(form);
+
+		return form;
 	}
 
 	modal<T>(
@@ -313,14 +383,4 @@ export class FormService {
 			if (text) this._alert.show({ text });
 		});
 	}
-}
-
-// deprecated
-@Directive({
-	selector: 'ng-template[formcomponent]'
-})
-export class FormComponentDirective {
-	@Input() formcomponent: any;
-
-	constructor(public template: TemplateRef<any>) {}
 }
