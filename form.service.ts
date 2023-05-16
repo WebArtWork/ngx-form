@@ -8,6 +8,7 @@ import {
 } from './interfaces/component.interface';
 import { FormInterface } from './interfaces/form.interface';
 import { ModalFormComponent } from './modals/modal-form/modal-form.component';
+import { TranslateService } from '../translate/translate.service';
 
 export interface FormModalButton {
 	click: (submition: unknown, close: () => void) => void;
@@ -23,7 +24,8 @@ export class FormService {
 		private _modal: ModalService,
 		private _mongo: MongoService,
 		private _store: StoreService,
-		private _alert: AlertService
+		private _alert: AlertService,
+		private _translate: TranslateService
 	) {
 		this.customForms = _mongo.get('form', {}, (arr: any, obj: any) => {
 			this._forms = obj;
@@ -40,55 +42,37 @@ export class FormService {
 		});
 	}
 
-	private _translate: (
-		slug: string,
-		reset?: (translate: string) => void
-	) => string;
-
-	setTranslate(
-		_translate: (
-			slug: string,
-			reset?: (translate: string) => void
-		) => string
-	) {
-		this._translate = _translate;
-	}
-
 	translateForm(form: FormInterface) {
-		if (!!this._translate) {
-			if (form.title) {
-				form.title = this._translate(
-					`Form_${form.formId}.${form.title}`,
-					(title: string) => {
-						form.title = title;
-					}
-				);
+		if (form.title) {
+			form.title = this._translate.translate(
+				`Form_${form.formId}.${form.title}`,
+				(title: string) => {
+					form.title = title;
+				}
+			);
 
-				for (const component of form.components) {
-					for (const field of component.fields) {
-						this.translateFormComponent(form, field);
-					}
+			for (const component of form.components) {
+				for (const field of component.fields) {
+					this.translateFormComponent(form, field);
 				}
 			}
 		}
 	}
 
 	translateFormComponent(form: FormInterface, field: TemplateFieldInterface) {
-		field.name = this._translate(
+		field.name = this._translate.translate(
 			`Form_${form.formId}.${field.name}`,
 			(name: string) => {
 				field.name = name;
 			}
 		);
-		// TODO: add management for deeper translate
-		if (typeof field.value === 'string') {
-			field.value = this._translate(
-				`Form_${form.formId}.${field.value}`,
-				(value: string) => {
-					field.value = value;
-				}
-			);
-		}
+
+		field.value = this._translate.translate(
+			`Form_${form.formId}.${field.value}`,
+			(value: string) => {
+				field.value = value;
+			}
+		);
 	}
 
 	components: TemplateComponentInterface[] = [];
@@ -176,17 +160,15 @@ export class FormService {
 		} else {
 			setTimeout(() => {
 				this.addRef(component);
-			}, 100);
+			}, 500);
 		}
 	}
 
 	forms: FormInterface[] = [];
 
-	addDevForm(form: FormInterface) {
+	addForm(form: FormInterface) {
 		if (this.forms.map((c) => c.formId).indexOf(form.formId) === -1) {
 			for (const component of form.components) {
-				component.root = true;
-
 				this.addRef(component);
 			}
 
@@ -208,7 +190,7 @@ export class FormService {
 					fields: [
 						{
 							name: 'Placeholder',
-							value: 'fill your name'
+							value: 'Enter your name'
 						},
 						{
 							name: 'Label',
@@ -223,7 +205,7 @@ export class FormService {
 					fields: [
 						{
 							name: 'Placeholder',
-							value: 'fill your description'
+							value: 'Enter your description'
 						},
 						{
 							name: 'Label',
@@ -250,25 +232,13 @@ export class FormService {
 			this._store.setJson('formIds', this.formIds);
 		}
 
-		const devForm = this.forms.find((f) => f.formId === formId);
-
 		const customForm = this.customForms.find(
 			(f) => f.formId === formId && f.active
 		);
 
-		const defaultForm = this.getDefaultForm(formId);
+		const _form = this.forms.find((f) => f.formId === formId);
 
-		const form = devForm
-			? { ...devForm }
-			: customForm
-			? { ...customForm }
-			: defaultForm;
-
-		if (devForm && customForm) {
-			for (const component of customForm.components) {
-				devForm.components.push(component);
-			}
-		}
+		const form = customForm || _form || this.getDefaultForm(formId);
 
 		this.translateForm(form);
 
@@ -318,6 +288,7 @@ export class FormService {
 		} else {
 			this._mongo.create('form', form, (created: FormInterface) => {
 				callback(created);
+
 				this._alert.show({ text });
 			});
 		}
@@ -331,6 +302,7 @@ export class FormService {
 				}
 			});
 		}
+
 		return this._forms[formId];
 	}
 
@@ -368,6 +340,7 @@ export class FormService {
 			},
 			() => {
 				callback();
+
 				if (text) this._alert.show({ text, unique: 'form' });
 			}
 		);
@@ -380,6 +353,7 @@ export class FormService {
 	): void {
 		this._mongo.delete('form', form, () => {
 			callback();
+
 			if (text) this._alert.show({ text });
 		});
 	}
