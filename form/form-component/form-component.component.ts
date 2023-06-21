@@ -3,15 +3,15 @@ import {
 	EventEmitter,
 	Input,
 	OnInit,
-	Output,
-	SimpleChanges
+	Output
 } from '@angular/core';
 import { FormComponentInterface } from '../../interfaces/component.interface';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FormService } from '../../form.service';
+import { FormInterface } from '../../interfaces/form.interface';
 
 interface Data {
-	field: Record<string, string>;
+	field: Record<string, unknown>;
 	value: unknown;
 }
 
@@ -22,6 +22,8 @@ interface Data {
 })
 export class FormComponentComponent implements OnInit {
 	@Input() component: FormComponentInterface;
+
+	@Input() config: FormInterface;
 
 	@Input() form: FormGroup;
 
@@ -55,7 +57,7 @@ export class FormComponentComponent implements OnInit {
 		}
 
 		if (this.component.key && this.submition !== undefined) {
-			if (this.component.root && this.submition['data']) {
+			if (!this.component.root && this.submition['data']) {
 				data.value = (
 					this.submition['data'] as Record<string, unknown>
 				)[this.component.key];
