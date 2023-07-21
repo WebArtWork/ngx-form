@@ -12,7 +12,7 @@ export interface TemplateComponentInterface {
 }
 
 export interface FormComponentInterface {
-	name: string; // template name
+	name?: string; // template name
 	templateRef?: TemplateRef<any>;
 
 	key?: string; // submition location
