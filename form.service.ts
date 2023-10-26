@@ -78,13 +78,24 @@ export class FormService {
 		}
 	}
 
+	// components: TemplateComponentInterface[] = [];
+
+	// addComponent(component: TemplateComponentInterface) {
+	// 	if (this.components.map((c) => c.name).indexOf(component.name) === -1) {
+	// 		this.components.push(component);
+	// 	} else {
+	// 		throw 'Component name is unique';
+	// 	}
+	// }
+
 	components: TemplateComponentInterface[] = [];
 
 	addComponent(component: TemplateComponentInterface) {
-		if (this.components.map((c) => c.name).indexOf(component.name) === -1) {
+		if (
+			this.components.map((c) => c.name).indexOf(component.name) ===
+			-1
+		) {
 			this.components.push(component);
-		} else {
-			throw 'Component name is unique';
 		}
 	}
 
@@ -100,11 +111,11 @@ export class FormService {
 		return index === -1
 			? null
 			: {
-					templateRef: this.components[index].ref,
-					components: [],
-					fields: [],
-					name
-			  };
+				component: this.components[index].component,
+				components: [],
+				fields: [],
+				name
+			};
 	}
 
 	inited = false;
@@ -128,7 +139,7 @@ export class FormService {
 					return;
 				}
 
-				component.templateRef = this.components[index].ref;
+				component.component = this.components[index].component;
 
 				for (const field of this.components[index].fields) {
 					if (
@@ -191,7 +202,6 @@ export class FormService {
 					name: 'Text',
 					key: 'name',
 					focused: true,
-					root: true,
 					fields: [
 						{
 							name: 'Placeholder',
@@ -206,7 +216,6 @@ export class FormService {
 				{
 					name: 'Text',
 					key: 'description',
-					root: true,
 					fields: [
 						{
 							name: 'Placeholder',
@@ -229,8 +238,6 @@ export class FormService {
 	}
 
 	formIds: string[] = [];
-
-	private _activeForm: FormInterface;
 
 	getForm(formId: string, form?: FormInterface): FormInterface {
 		if (
@@ -264,8 +271,8 @@ export class FormService {
 			form = devForm
 				? { ...devForm }
 				: customForm
-				? { ...customForm }
-				: defaultForm;
+					? { ...customForm }
+					: defaultForm;
 		}
 
 		form.formId = formId;
@@ -280,7 +287,7 @@ export class FormService {
 
 		this.translateForm(form);
 
-		this._mongo.get('form', () => {
+		this._mongo.on('form', () => {
 			const forms = this.customForms.filter(
 				(c) => c.formId === (form as FormInterface).formId
 			);
@@ -306,7 +313,7 @@ export class FormService {
 		form: FormInterface | FormInterface[],
 		buttons: FormModalButton | FormModalButton[] = [],
 		submition: unknown = {},
-		change = (doc: T) => {}
+		change = (doc: T) => { }
 	): Promise<T> {
 		return new Promise((resolve, reject) => {
 			this._modal.show({
@@ -345,7 +352,7 @@ export class FormService {
 
 	create(
 		form: FormInterface = this.new(),
-		callback = (created: FormInterface) => {},
+		callback = (created: FormInterface) => { },
 		text = 'form has been created.'
 	) {
 		if (form._id) {
@@ -373,7 +380,7 @@ export class FormService {
 
 	update(
 		form: FormInterface,
-		callback = () => {},
+		callback = () => { },
 		text = 'form has been updated.'
 	): void {
 		this._mongo.afterWhile(form, () => {
@@ -383,7 +390,7 @@ export class FormService {
 
 	save(
 		form: FormInterface,
-		callback = () => {},
+		callback = () => { },
 		text = 'form has been updated.'
 	): void {
 		this._mongo.update(
@@ -413,7 +420,7 @@ export class FormService {
 
 	delete(
 		form: FormInterface,
-		callback = () => {},
+		callback = () => { },
 		text = 'form has been deleted.'
 	): void {
 		this._mongo.delete('form', form, () => {

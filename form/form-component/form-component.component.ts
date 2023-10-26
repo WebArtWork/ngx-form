@@ -3,12 +3,15 @@ import {
 	EventEmitter,
 	Input,
 	OnInit,
-	Output
+	Output,
+	ViewContainerRef,
+	ViewRef
 } from '@angular/core';
 import { FormComponentInterface } from '../../interfaces/component.interface';
 import { FormControl, FormGroup } from '@angular/forms';
 import { FormService } from '../../form.service';
 import { FormInterface } from '../../interfaces/form.interface';
+import { DomService } from 'wacom';
 
 interface Data {
 	field: Record<string, unknown>;
@@ -43,7 +46,11 @@ export class FormComponentComponent implements OnInit {
 
 	data: Data;
 
-	constructor(private _form: FormService) {}
+	constructor(
+		private _viewContainerRef: ViewContainerRef,
+		private _form: FormService,
+		private _dom: DomService
+	) {}
 
 	value(key: string, doc: Record<string, unknown>): unknown {
 		if(key.indexOf('.') > -1) {
@@ -99,8 +106,20 @@ export class FormComponentComponent implements OnInit {
 
 		this.data = data;
 
-		if (!this.component.templateRef) {
+		if (!this.component.component) {
 			this._form.addRef(this.component);
 		}
+
+		this._viewContainerRef.insert(this._dom.getComponentRef(this.component.component, {
+			component: this.component,
+			config: this.config,
+			field: this.data.field,
+			value: this.data.value,
+			control: this.control,
+			form: this.form,
+			wSubmit: this.wSubmit.emit,
+			wChange: this.wChange.emit,
+			wClick: this.wClick.emit
+		}).hostView as unknown as ViewRef);
 	}
 }
