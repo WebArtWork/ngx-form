@@ -55,8 +55,10 @@ export class FormService {
 			);
 
 			for (const component of form.components) {
-				for (const field of component.fields) {
-					this.translateFormComponent(form, field);
+				for (const field of (component.fields as TemplateFieldInterface[])) {
+					if (typeof field.value === 'string') {
+						this.translateFormComponent(form, field);
+					}
 				}
 			}
 		}
