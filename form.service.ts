@@ -249,6 +249,11 @@ export class FormService {
 				component.root = true;
 			}
 		}
+		if (customForm) {
+			for (const component of customForm.components) {
+				component.root = false;
+			}
+		}
 
 		if (!form) {
 			form = devForm
