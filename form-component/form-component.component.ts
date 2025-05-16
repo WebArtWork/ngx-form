@@ -95,9 +95,10 @@ export class FormComponentComponent implements OnInit {
 					this.localSubmition[key] as Record<string, unknown>[]
 				)[index];
 			} else {
-				this.localSubmition = this.localSubmition[
-					this.localKey
-				] as Record<string, unknown>;
+				this.localSubmition = this.localSubmition[key] as Record<
+					string,
+					unknown
+				>;
 			}
 		}
 
